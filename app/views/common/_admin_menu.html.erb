@@ -1,0 +1,17 @@
+<ul class="nav nav-treeview">
+  <% AdminSetting.menus_entries.sort_by{|x|x[:display_order]}.each do |menu| %>
+    <% menu_url = eval(menu[:url]) %>
+    <% if enable_action?(menu_url) %>
+      <li class="nav-item">
+        <%= link_to(menu_url, class: "nav-link", data: {turbo: false}) do %>
+          <% if is_current_page?(menu_url) %>
+            <i class="<%= menu[:icon] %> nav-icon text-red"></i>
+          <% else %>
+            <i class="<%= menu[:icon] %> nav-icon"></i>
+          <% end %>
+          <p><%= t("menu.admin.#{menu[:key]}".to_sym) %></p>
+        <% end %>
+      </li>
+    <% end %>
+  <% end %>
+</ul>
