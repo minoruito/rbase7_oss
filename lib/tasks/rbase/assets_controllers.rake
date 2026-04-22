@@ -178,6 +178,9 @@ namespace :rbase do
         start_marker = "// BEGIN rbase plugins images link_tree"
         end_marker = "// END rbase plugins images link_tree"
 
+        # gem の link_tree のあとに明示する（app/assets/images 配下・SystemSetting :logo_path 等）
+        extra_manifest_image_links = %w[canvas-admin.png]
+
         plugin_link_tree_re = %r{\A\s*//=\s+link_tree\s+\.\./\.\./\.\./rbase_gems/rbase_[^\s/]+/app/assets/images\s*\z}
 
         lines = File.readlines(manifest_path)
@@ -193,6 +196,9 @@ namespace :rbase do
             next
           end
           next if plugin_link_tree_re.match?(line.chomp)
+          if extra_manifest_image_links.any? { |fn| line.chomp.match?(/\A\s*\/\/=\s+link\s+#{Regexp.escape(fn)}\s*\z/) }
+            next
+          end
 
           out_lines << line
         end
@@ -201,11 +207,14 @@ namespace :rbase do
         end
 
         insertion_lines = []
-        if images_dirs.any?
+        if images_dirs.any? || extra_manifest_image_links.any?
           insertion_lines << "#{start_marker}\n"
           images_dirs.each do |abs_dir|
             rel = Pathname.new(File.expand_path(abs_dir)).relative_path_from(manifest_dir).to_s.tr("\\", "/")
             insertion_lines << "//= link_tree #{rel}\n"
+          end
+          extra_manifest_image_links.each do |filename|
+            insertion_lines << "//= link #{filename}\n"
           end
           insertion_lines << "#{end_marker}\n"
         end

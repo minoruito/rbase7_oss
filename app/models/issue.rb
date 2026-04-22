@@ -8,10 +8,6 @@ class Issue < ApplicationRecord
   after_find :set_limited_at
   before_save :set_prev_workflow_state
 
-  # before_create :set_creator
-  # before_update :set_updater
-  # before_destroy :set_deleter
-
   belongs_to :site, optional: true
   belongs_to :workflow_state, optional: true
 

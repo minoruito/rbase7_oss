@@ -95,6 +95,9 @@ namespace :git do
                 next if url.nil? || url.empty?
 
                 path = key.delete_prefix("submodule.").delete_suffix(".url")
+                # git@host:path.git や ssh:// は URI.parse できない。HTTPS 埋め込みは https のみ対象。
+                next unless url.start_with?("https://")
+
                 uri = URI.parse(url)
                 next unless uri.scheme == "https"
                 next if match_parent_only && parent_host && uri.host != parent_host

@@ -87,6 +87,9 @@ group :deployment do
   gem 'capistrano-delayed-job'
   # gem 'rvm-capistrano'
   gem 'sshkit'
+  # net-ssh が ssh-ed25519 鍵を使うために必要（https://github.com/net-ssh/net-ssh/issues/565）
+  gem 'ed25519', '>= 1.2', '< 2.0'
+  gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
 end
 
 # gem 'reline', '0.3.0'
