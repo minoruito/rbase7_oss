@@ -1,1 +1,0 @@
-../../rbase_gems/rbase_canvas_admin/config/deploy/local_canvas_admin.rb

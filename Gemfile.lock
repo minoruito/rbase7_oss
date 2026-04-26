@@ -146,6 +146,7 @@ GEM
       rubyzip (>= 0.9.5)
     base64 (0.2.0)
     bcrypt (3.1.20)
+    bcrypt_pbkdf (1.1.2)
     bigdecimal (3.1.8)
     bindata (2.5.0)
     bindex (0.8.1)
@@ -217,6 +218,7 @@ GEM
     dotenv-rails (3.1.7)
       dotenv (= 3.1.7)
       railties (>= 6.1)
+    ed25519 (1.4.0)
     encryptor (3.0.0)
     erubi (1.13.0)
     executable-hooks (1.6.1)
@@ -542,6 +544,7 @@ DEPENDENCIES
   attr_encrypted
   axlsx
   base64 (= 0.2.0)
+  bcrypt_pbkdf (>= 1.0, < 2.0)
   bootsnap
   bower-rails
   cancancan
@@ -559,6 +562,7 @@ DEPENDENCIES
   delayed_job_active_record
   devise (~> 4.9.2)
   dotenv-rails
+  ed25519 (>= 1.2, < 2.0)
   executable-hooks (= 1.6.1)
   foreman
   grover (= 1.1.9)
