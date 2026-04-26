@@ -158,9 +158,16 @@ namespace :rbase do
         manifest_path = File.join(::Rails.root, "app", "assets", "config", "manifest.js")
         manifest_dir = Pathname.new(File.expand_path(File.dirname(manifest_path)))
 
+        image_suffixes = %w[.png .jpg .jpeg .gif .svg .ico .webp .bmp .avif].freeze
+
         images_dirs = Dir.glob(File.join(::Rails.root, "rbase_gems", "rbase_*", "app", "assets", "images"))
           .select { |p| File.directory?(p) }
           .uniq
+        images_dirs.select! do |dir|
+          Dir.glob(File.join(dir, "**", "*"), File::FNM_DOTMATCH).any? do |path|
+            File.file?(path) && image_suffixes.include?(File.extname(path).downcase)
+          end
+        end
 
         unless ENV["RBASE_GEMS_ORDER"].blank? || images_dirs.empty?
           gem_names = images_dirs.map { |p| RbaseTaskHelpers.extract_rbase_gem_name(p) }.compact
@@ -178,8 +185,7 @@ namespace :rbase do
         start_marker = "// BEGIN rbase plugins images link_tree"
         end_marker = "// END rbase plugins images link_tree"
 
-        # gem の link_tree のあとに明示する（app/assets/images 配下・SystemSetting :logo_path 等）
-        extra_manifest_image_links = %w[canvas-admin.png]
+        plugin_image_link_re = %r{\A\s*//=\s+link\s+.*rbase_gems/rbase_[^/\s]+/app/assets/images/}
 
         plugin_link_tree_re = %r{\A\s*//=\s+link_tree\s+\.\./\.\./\.\./rbase_gems/rbase_[^\s/]+/app/assets/images\s*\z}
 
@@ -196,9 +202,7 @@ namespace :rbase do
             next
           end
           next if plugin_link_tree_re.match?(line.chomp)
-          if extra_manifest_image_links.any? { |fn| line.chomp.match?(/\A\s*\/\/=\s+link\s+#{Regexp.escape(fn)}\s*\z/) }
-            next
-          end
+          next if plugin_image_link_re.match?(line.chomp)
 
           out_lines << line
         end
@@ -207,14 +211,19 @@ namespace :rbase do
         end
 
         insertion_lines = []
-        if images_dirs.any? || extra_manifest_image_links.any?
+        if images_dirs.any?
           insertion_lines << "#{start_marker}\n"
           images_dirs.each do |abs_dir|
             rel = Pathname.new(File.expand_path(abs_dir)).relative_path_from(manifest_dir).to_s.tr("\\", "/")
             insertion_lines << "//= link_tree #{rel}\n"
-          end
-          extra_manifest_image_links.each do |filename|
-            insertion_lines << "//= link #{filename}\n"
+            image_paths =
+              Dir.glob(File.join(abs_dir, "**", "*"), File::FNM_DOTMATCH).select do |path|
+                File.file?(path) && image_suffixes.include?(File.extname(path).downcase)
+              end.sort
+            image_paths.each do |abs_file|
+              rel_file = Pathname.new(File.expand_path(abs_file)).relative_path_from(manifest_dir).to_s.tr("\\", "/")
+              insertion_lines << "//= link #{rel_file}\n"
+            end
           end
           insertion_lines << "#{end_marker}\n"
         end

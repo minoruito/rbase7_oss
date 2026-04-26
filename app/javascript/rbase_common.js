@@ -403,57 +403,6 @@ function defaultTinyMceOption() {
   }
 }
 
-function initSelectInstDept() {
-  console.log("initSelectInstDept");
-  $("select.select_institution").each(function() {
-    if ($(this).val() == '') {
-      $(".select_department").find("option").each(function(i, elm) {
-        if ($(elm).parent().get(0).tagName.toLowerCase() == "span") {
-          $(elm).unwrap();
-        }
-      });
-    } else {
-      let selected = $(this).val();
-      $(".select_department").find("option").each(function(i, elm) {
-        if ($(elm).data("parentOrgId") == undefined || $(elm).data("parentOrgId") == selected) {
-          if ($(elm).parent().get(0).tagName.toLowerCase() =="span") {
-            $(elm).unwrap();
-          }
-        } else {
-          $(elm).wrap('<span class="selector-hide"></span>');
-        }
-      });
-    }
-  });
-}
-
-function selectInstDept() {
-  console.log("selectInstDept");
-  $(document).off("change", ".select_institution");
-  $(document).on("change", ".select_institution", function() {
-    $(".select_department").val("");
-    if ($(this).val() == '') {
-      $(".select_department").children().each(function(i, elm) {
-        if ($(elm).get(0).tagName.toLowerCase() == "span") {
-          $(elm).children().first().unwrap();
-        }
-      });
-    } else {
-      let selected = $(this).val();
-      $(".select_department").children().each(function(i, elm) {
-        if ($(elm).get(0).tagName.toLowerCase() == "span") {
-          if ($(elm).children().first().data("parentOrgId") == undefined || $(elm).children().first().data("parentOrgId") == selected) {
-            $(elm).children().first().unwrap();
-          }
-        } else {
-          if ($(elm).data("parentOrgId") != undefined && $(elm).data("parentOrgId") != selected) {
-            $(elm).wrap('<span class="selector-hide"></span>');
-          }
-        }
-      });
-    }
-  })
-}
 function loadGoogleTranslate() {
   return new Promise((resolve, reject) => {
     window.googleTranslateElementInit = () => {
@@ -492,7 +441,5 @@ module.exports = {
   tinyMceOnChangeHandler: tinyMceOnChangeHandler,
   showLoading: showLoading,
   defaultTinyMceOption: defaultTinyMceOption,
-  initSelectInstDept: initSelectInstDept,
-  selectInstDept: selectInstDept,
   loadGoogleTranslate: loadGoogleTranslate,
 }

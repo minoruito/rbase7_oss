@@ -25,15 +25,6 @@ module ApiCommon
   CIPHER = "aes-256-cbc"
 
   def to_decrypt(message)
-    begin
-      secret = Rails.application.secrets.encrypt_secure_key
-
-      encryptor = ::ActiveSupport::MessageEncryptor.new(secret, cipher: CIPHER)
-      return encryptor.decrypt_and_verify(message)
-
-    rescue => e
-      ::Rails.logger.error("error:" + e.message)
-    end
-    message
+    DWHCache.to_decrypt(message)
   end
 end

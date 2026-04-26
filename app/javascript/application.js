@@ -22,6 +22,9 @@ require("bootstrap-datepicker/dist/locales/bootstrap-datepicker.ja.min")
 
 require("bootstrap-select/dist/js/bootstrap-select.min")
 
+require("select2")(window, jquery)
+require("select2/dist/js/i18n/ja")
+
 // require("blueimp-file-upload/js/jquery.iframe-transport.js")
 // require("blueimp-file-upload/js/jquery.fileupload.js")
 // require("blueimp-file-upload/js/jquery.fileupload-process.js")

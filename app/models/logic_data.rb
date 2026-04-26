@@ -8,6 +8,7 @@ class LogicData
   
   def self.all
     result = []
+    return result if Site.first.nil?
     logic_list = SystemSetting.get_multivalue_list(:logics, Site.first.id)
     logic_list.each do |logic|
       l = LogicData.new
