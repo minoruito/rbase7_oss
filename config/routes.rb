@@ -21,6 +21,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :job_histories
+
   namespace :admin do
     resources :issue_types
     resources :sites

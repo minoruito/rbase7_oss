@@ -28,7 +28,8 @@ ja:
     admin: "管理者メニュー"
     sites: "サイト"
     admin_users/registrations: "ログインユーザ"
-      
+    job_histories: "ジョブ実行履歴"
+
     action:
       issues_index: "検索"
       issues_show: "詳細"
@@ -128,6 +129,8 @@ ja:
       admin_users/registrations_update: "更新"
       admin_users/registrations_destroy: "削除"
 
+      job_histories_index: "検索"
+
   helpers:
     page_entries_info:
       one_page:
@@ -152,6 +155,8 @@ ja:
       sign_in: "ログイン"
       sign_up: "ユーザ登録"
       edit_link: "プロフィール"
+      job_histories:
+        index: "ジョブ実行履歴"
     admin:
       sites: "サイト"
       roles: "権限"
@@ -838,3 +843,17 @@ ja:
           header_guide: "新しいパスワードを入力して、更新ボタンをクリックして下さい。"
           button_update: "更新"
           button_top: "トップページへ"
+
+    job_histories:
+      fields:
+        job_type: "ジョブ種別"
+        status: "ステータス"
+        request_by: "要求者"
+        requested_at: "要求日時"
+        started_at: "開始日時"
+        finished_at: "終了日時"
+        spent: "経過時間"
+        action: "操作"
+      index:
+        title: "ジョブ実行履歴"
+

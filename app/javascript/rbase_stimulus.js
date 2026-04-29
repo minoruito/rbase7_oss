@@ -42,6 +42,39 @@ export class RbaseController extends Controller {
     var actionnameValue = this.actionnameValue;
     var defer = new $.Deferred().resolve();
 
+    // jquery-treeview: sync 後は Turbo Stream.replace で DOM だけ入れ替えられ、
+    // turbo:frame-load は飛ばない。turbo:load や子 DOM 挿入で掛け直す。
+    var reinitJqueryTreeview = function() {
+      if ($(".treeview").length) {
+        $(".treeview").each(function() {
+          self.destroyTreeview($(this));
+        });
+        $(".treeview").treeview();
+      }
+      $(".loading_image-small").hide();
+    };
+    var autoDismissFlashMessages = function() {
+      var $alerts = $("#entry-turbo-message .alert");
+      if (!$alerts.length) {
+        return;
+      }
+      setTimeout(function() {
+        $alerts.each(function() {
+          $(this).alert("close");
+        });
+      }, 5000);
+    };
+    var reinitJqueryTreeviewDebounced = (function() {
+      var t = null;
+      return function() {
+        if (t) { clearTimeout(t); }
+        t = setTimeout(function() {
+          t = null;
+          reinitJqueryTreeview();
+        }, 20);
+      };
+    })();
+
     var param = location.search
     var selfRedirectValue = false;
     if (param.indexOf("self_redirect=true") >= 0) {
@@ -67,13 +100,9 @@ export class RbaseController extends Controller {
         $this.trigger(actionnameValue);
       } else {
         console.log("deterrence:" + controllername + "/" + actionnameValue);
-        //treeviewの再構築
-        $(".treeview").each(function() {
-          console.log("treeview:" + $(this).prop("id"));
-          self.destroyTreeview($(this));
-        })
-        $(".treeview").treeview();
+        reinitJqueryTreeview();
       }
+      autoDismissFlashMessages();
     });
 
     //ターボで更新した場合もイベント呼出を行う。
@@ -137,6 +166,7 @@ export class RbaseController extends Controller {
         }
         if (message != "") {
           $("#entry-turbo-message").html(message);
+          autoDismissFlashMessages();
         }
       }
     });
@@ -174,10 +204,42 @@ export class RbaseController extends Controller {
 
     console.log("[RbaseController]add turbo:frame-load");
     $(document).off("turbo:frame-load");
-    $(document).on("turbo:frame-load", function() {
+    $(document).on("turbo:frame-load", function(event) {
       console.log("!!!!!!!!!!!!!!!!turbo:frame-load");
       $(document).trigger("turbo:before-stream-render");
+      reinitJqueryTreeview();
     });
+
+    document.addEventListener("turbo:load", reinitJqueryTreeviewDebounced, false);
+    document.addEventListener("turbo:render", reinitJqueryTreeviewDebounced, false);
+
+    if (typeof window.MutationObserver !== "undefined") {
+      var treeviewRoot = document.querySelector("section.content") || document.querySelector(".content .container-fluid") || document.body;
+      if (treeviewRoot) {
+        this._rbaseTreeviewObserver = new MutationObserver(function(mutations) {
+          for (var k = 0; k < mutations.length; k++) {
+            var m = mutations[k];
+            for (var n = 0; n < m.addedNodes.length; n++) {
+              var el = m.addedNodes[n];
+              if (el.nodeType !== 1) { continue; }
+              if (el.classList && el.classList.contains("treeview")) {
+                reinitJqueryTreeviewDebounced();
+                return;
+              }
+              if (el.id === "entry-turbo-account_search_results" || (el.id && el.id.indexOf("entry-turbo-") === 0)) {
+                reinitJqueryTreeviewDebounced();
+                return;
+              }
+              if (el.querySelector && el.querySelector(".treeview, turbo-frame#entry-turbo-account_search_results")) {
+                reinitJqueryTreeviewDebounced();
+                return;
+              }
+            }
+          }
+        });
+        this._rbaseTreeviewObserver.observe(treeviewRoot, { childList: true, subtree: true });
+      }
+    }
     
     console.log("set tooltip");
     $('[data-toggle="tooltip"]').tooltip({

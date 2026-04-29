@@ -33,9 +33,13 @@ module Rbase7
 
     config.autoload_paths += %W(#{Rails.root}/lib #{Rails.root}/app/forms)
 
-    plugin_lib_paths = Dir["rbase_gems/rbase_*/lib/**/*.rb"]
-    plugin_lib_paths.each do |plugin_lib_path|
-      config.autoload_paths += Dir[Rails.root.join(File.dirname(plugin_lib_path))]
+    # `lib/**/*.rb` を列挙すると rbase プラグイン分の O(n) で起動が極端に遅くなる（共有ディスク上では特に）。
+    # 各 path gem の `lib` を1つずつ autoload ルートに足せば足りる。
+    Rails.root.glob("rbase_gems/rbase_*/lib").sort.each do |lib_path|
+      next unless lib_path.directory?
+      path = lib_path.to_s
+      next if config.autoload_paths.include?(path)
+      config.autoload_paths << path
     end
 
     # localeのカスタマイズ部の登録
