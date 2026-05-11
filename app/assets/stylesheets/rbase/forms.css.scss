@@ -456,6 +456,12 @@ ul.reflection-journal-tab li.nav-item a {
   z-index: 1034;
 }
 
+// fixed-bottom のナビ直下で本文が潜らないよう余白（canvas users show/edit 等）
+form:has(> nav.fixed-bottom.admin_bottom_menu) > section.content,
+section.content:has(form > nav.fixed-bottom.admin_bottom_menu) {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
 .admin_top_bottom_row {
   width: 100%;
   display: flex;

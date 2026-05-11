@@ -160,16 +160,26 @@ namespace :rbase do
 
         image_suffixes = %w[.png .jpg .jpeg .gif .svg .ico .webp .bmp .avif].freeze
 
-        images_dirs = Dir.glob(File.join(::Rails.root, "rbase_gems", "rbase_*", "app", "assets", "images"))
-          .select { |p| File.directory?(p) }
+        # lib/customizes 側の実体は rbase_gems/rbase_* からのシンボリックリンクで参照する想定
+        # （realpath に寄せると manifest が lib/... になり、不要に二重管理になる）
+        images_dirs = Dir.glob(
+          File.join(::Rails.root, "rbase_gems", "rbase_*", "app", "assets", "images")
+        )
+          .map { |p| File.expand_path(p) }
           .uniq
+          .select { |p| File.directory?(p) }
         images_dirs.select! do |dir|
           Dir.glob(File.join(dir, "**", "*"), File::FNM_DOTMATCH).any? do |path|
             File.file?(path) && image_suffixes.include?(File.extname(path).downcase)
           end
         end
 
-        unless ENV["RBASE_GEMS_ORDER"].blank? || images_dirs.empty?
+        if images_dirs.empty?
+          puts "SKIP: manifest.js — rbase 用の images ディレクトリが見つかりません。"
+          puts "  想定: #{::Rails.root}/rbase_gems/rbase_*/app/assets/images"
+          puts "  少なくとも1件の画像（.png 等）があり、rbase_gems 配下にシンボリックリンクで繋いである必要があります。ブロックの削除も行いません。"
+        else
+        unless ENV["RBASE_GEMS_ORDER"].blank?
           gem_names = images_dirs.map { |p| RbaseTaskHelpers.extract_rbase_gem_name(p) }.compact
           sort_list = ENV["RBASE_GEMS_ORDER"].split(",").map(&:strip).reject(&:blank?)
           ordered_keys = (sort_list & gem_names) + (gem_names - sort_list)
@@ -185,9 +195,10 @@ namespace :rbase do
         start_marker = "// BEGIN rbase plugins images link_tree"
         end_marker = "// END rbase plugins images link_tree"
 
+        # 直前 run でブロック外に残した旧 rbase パス用 //= link を掃除
         plugin_image_link_re = %r{\A\s*//=\s+link\s+.*rbase_gems/rbase_[^/\s]+/app/assets/images/}
 
-        plugin_link_tree_re = %r{\A\s*//=\s+link_tree\s+\.\./\.\./\.\./rbase_gems/rbase_[^\s/]+/app/assets/images\s*\z}
+        plugin_link_tree_re = %r{\A\s*//=\s+link_tree\s+.*rbase_gems/rbase_[^\s/]+/app/assets/images\s*\z}
 
         lines = File.readlines(manifest_path)
         out_lines = []
@@ -221,8 +232,8 @@ namespace :rbase do
                 File.file?(path) && image_suffixes.include?(File.extname(path).downcase)
               end.sort
             image_paths.each do |abs_file|
-              rel_file = Pathname.new(File.expand_path(abs_file)).relative_path_from(manifest_dir).to_s.tr("\\", "/")
-              insertion_lines << "//= link #{rel_file}\n"
+              # link_tree のディレクトリ通じて解決するため、ファイル名のみでよい
+              insertion_lines << "//= link #{File.basename(abs_file)}\n"
             end
           end
           insertion_lines << "#{end_marker}\n"
@@ -246,6 +257,7 @@ namespace :rbase do
         end
 
         File.write(manifest_path, merged.join)
+        end
 
         puts "[update_assets_controllers]finished...."
       end

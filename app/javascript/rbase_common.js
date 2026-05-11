@@ -186,6 +186,9 @@ function getParams(param_name) {
 function showFormDisbaled() {
   $(function() {
     $("input").each(function() {
+      if ($(this).hasClass("show-enable")) {
+        return true;
+      }
       if ($(this).prop('type') == 'submit' || $(this).prop('type') == 'button' || $(this).prop('type') == 'hidden') {
       } else {
         $(this).prop("disabled", true);
@@ -194,11 +197,17 @@ function showFormDisbaled() {
       }
     });
     $("select").each(function() {
+      if ($(this).hasClass("show-enable")) {
+        return true;
+      }
       $(this).prop("disabled", true);
       $(this).css('background', 'white');
       $(this).css('cursor', 'default');
     });
     $("textarea").each(function() {
+      if ($(this).hasClass("show-enable")) {
+        return true;
+      }
       $(this).prop("disabled", true);
       $(this).css('background', 'white');
       $(this).css('cursor', 'default');

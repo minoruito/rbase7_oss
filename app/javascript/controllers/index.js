@@ -49,4 +49,9 @@ application.register("issues", IssuesController)
 import QueriesController from "./queries_controller"
 application.register("queries", QueriesController)
 
+import JobHistoriesController from "./job_histories_controller"
+application.register("job_histories", JobHistoriesController)
+
 // customizing javascript part.
+import "@app_root/rbase_gems/rbase_lti_module/app/javascript/controllers/index_custom.js"
+import "@app_root/rbase_gems/rbase_canvas_admin/app/javascript/controllers/index_custom.js"

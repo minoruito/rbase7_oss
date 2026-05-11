@@ -56,15 +56,23 @@ module ApplicationHelper
     when "date"
       options.update({input_html: {class: 'datepicker'}})
     else
+      custom_field_input_else_field_type(form, options)
     end
     options.update({required: true}) if form.object.custom_field.required
-    options.update({input_html: {col: form.object.custom_field.field_size.to_i}}) if form.object.custom_field.field_size
+    # field_size の col だけを足す（update で input_html を置き換えると institution の select_institution 等が消える）
+    if form.object.custom_field.field_size
+      options[:input_html] = (options[:input_html] || {}).merge(col: form.object.custom_field.field_size.to_i)
+    end
     options.update({label: form.object.custom_field.display_name})
     safe_join([
                 form.input(:field_value, options),
                 form.input(:custom_field_id, as: :hidden, input_html: {value: form.object.custom_field.id})
               ])
   end
+
+  private
+  def custom_field_input_else_field_type(form, options);end
+  public
 
   def active_site_selected
     !current_admin_user.try(:selected_site).blank?

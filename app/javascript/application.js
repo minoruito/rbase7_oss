@@ -25,6 +25,8 @@ require("bootstrap-select/dist/js/bootstrap-select.min")
 require("select2")(window, jquery)
 require("select2/dist/js/i18n/ja")
 
+require("bootstrap4-toggle/js/bootstrap4-toggle.min")
+
 // require("blueimp-file-upload/js/jquery.iframe-transport.js")
 // require("blueimp-file-upload/js/jquery.fileupload.js")
 // require("blueimp-file-upload/js/jquery.fileupload-process.js")

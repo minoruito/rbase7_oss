@@ -3,6 +3,9 @@ class ApplicationController < ActionController::Base
   include ::Prestruct
   include ::ControllerCommon
 
+  # Accept-Language に基づき I18n ロケールを切り替える（日本語を優先しない場合は英語）
+  around_action :with_locale_from_accept_language  if Rails.env.production?
+
   before_action :check_flash
   before_action :restore_turbo_redirect_flash
   before_action :configure_permitted_parameters, if: :devise_controller?
@@ -134,6 +137,47 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def with_locale_from_accept_language
+    I18n.with_locale(resolve_locale_from_accept_language) { yield }
+  rescue => e
+    root_frame = Array(e.backtrace).find { |line| !line.include?("with_locale_from_accept_language") } || Array(e.backtrace).first
+    Rails.logger.error("[with_locale_from_accept_language] #{e.class}: #{e.message}")
+    Rails.logger.error("[with_locale_from_accept_language] root=#{root_frame}") if root_frame
+    raise
+  end
+
+  # RFC 7231 の Accept-Language を解釈し、先頭の ja / en に一致するロケールを返す。
+  # 日本語は :ja、英語訳系は :en。いずれにも合致しない言語のみの場合は :en。
+  # ヘッダが空の場合は config.i18n.default_locale（:ja）のまま。
+  def resolve_locale_from_accept_language
+    header = request.env["HTTP_ACCEPT_LANGUAGE"].to_s
+    return I18n.default_locale if header.strip.empty?
+
+    entries = []
+    header.split(",").each_with_index do |part, index|
+      part = part.strip
+      next if part.empty?
+
+      lang_range, *params = part.split(";").map(&:strip)
+      q = 1.0
+      params.each do |p|
+        q = Regexp.last_match(1).to_f if p.match(/\Aq=([\d.]+)\z/i)
+      end
+      entries << { tag: lang_range.downcase, q: q, idx: index }
+    end
+    return I18n.default_locale if entries.empty?
+
+    sorted = entries.sort_by { |e| [-e[:q], e[:idx]] }
+    sorted.each do |e|
+      primary = e[:tag].split("-", 2).first
+      return :ja if primary == "ja"
+      return :en if primary == "en"
+    end
+
+    :en
+  end
+
   def access_denied_reply_with_turbo_stream?
     return true if request.format.turbo_stream?
 

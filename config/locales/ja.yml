@@ -28,7 +28,8 @@ ja:
     admin: "管理者メニュー"
     sites: "サイト"
     admin_users/registrations: "ログインユーザ"
-      
+    job_histories: "ジョブ実行履歴"
+
     action:
       issues_index: "検索"
       issues_show: "詳細"
@@ -128,6 +129,10 @@ ja:
       admin_users/registrations_update: "更新"
       admin_users/registrations_destroy: "削除"
 
+      job_histories_index: "検索"
+      job_histories_show: "詳細"
+
+
   helpers:
     page_entries_info:
       one_page:
@@ -152,6 +157,8 @@ ja:
       sign_in: "ログイン"
       sign_up: "ユーザ登録"
       edit_link: "プロフィール"
+      job_histories:
+        index: "ジョブ実行履歴"
     admin:
       sites: "サイト"
       roles: "権限"
@@ -354,6 +361,7 @@ ja:
         setting_category_div: "カテゴリー"
         setting_div: "設定名"
         setting_value: "設定値"
+        hint: "入力説明"
       query:
         title: "タイトル"
         shared: "共有"
@@ -370,6 +378,12 @@ ja:
         updater_name: "更新者"
         uploader_name: "登録者"
         uploaded_at: "登録日時"
+      job_manage:
+        job_type: "ジョブ種別"
+        status: "ステータス"
+        request_by: "要求者"
+        requested_at: "要求日時"
+
   views:
     common:
       fail_login_message: "ログインに失敗しました。"
@@ -838,3 +852,30 @@ ja:
           header_guide: "新しいパスワードを入力して、更新ボタンをクリックして下さい。"
           button_update: "更新"
           button_top: "トップページへ"
+
+    job_histories:
+      fields:
+        job_type: "ジョブ種別"
+        status: "ステータス"
+        request_by: "要求者"
+        requested_at: "要求日時"
+        started_at: "開始日時"
+        finished_at: "終了日時"
+        spent: "経過時間"
+        action: "操作"
+      table_job_histories:
+        show: "詳細"
+      index:
+        title: "ジョブ実行履歴"
+      show:
+        title: "ジョブ実行結果詳細"
+        error_list_title: "発生エラー詳細"
+        back_to_job_histories: "ジョブ履歴へ戻る"
+        empty: "登録されているエラーはありません。"
+        forbidden: "このジョブのエラー一覧を参照する権限がありません。"
+        job_manage_id_label: "ジョブ管理ID"
+        table_show_errors:
+          row_no: "行番号"
+          target_name: "対象名"
+          message: "エラー内容"
+          created_at: "登録日時"
